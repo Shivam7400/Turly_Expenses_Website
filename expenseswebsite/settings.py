@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 from os import getenv
 from dotenv import load_dotenv
+from django.contrib import messages
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
@@ -131,3 +132,15 @@ STATIC_ROOT=os.path.join(BASE_DIR, 'static')
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MESSAGE_TAGS = {
+    messages.ERROR:'danger'
+}
+
+# email stuff
+EMAIL_HOST = getenv('EMAIL_HOST')
+EMAIL_HOST_USER = getenv('EMAIL_HOST_USER')
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = getenv('EMAIL_HOST_USER')
+EMAIL_PORT = 587
+EMAIL_HOST_PASSWORD = getenv('EMAIL_HOST_PASSWORD')
