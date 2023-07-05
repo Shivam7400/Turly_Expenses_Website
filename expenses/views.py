@@ -2,8 +2,23 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Category, Expense
 from django.contrib import messages
-from userpreferences.models import UserPreference
+from django.contrib.auth.models import User
 from django.core.paginator import Paginator
+import json
+from django.http import JsonResponse
+from userpreferences.models import UserPreference
+import datetime
+
+def search_expenses(request):
+    if request.method == 'POST':
+        search_str = json.loads(request.body).get('searchText')
+        expenses = Expense.objects.filter(
+            amount__istartswith=search_str, owner=request.user) | Expense.objects.filter(
+            date__istartswith=search_str, owner=request.user) | Expense.objects.filter(
+            description__icontains=search_str, owner=request.user) | Expense.objects.filter(
+            category__icontains=search_str, owner=request.user)
+        data = expenses.values()
+        return JsonResponse(list(data), safe=False)
 
 @login_required(login_url='/authentication/login')
 def index(request):
@@ -26,14 +41,12 @@ def add_expense(request):
         'values': request.POST
     }
     if request.method == 'GET':
-        return render(request, 'expenses/add_expense.html', context)
-    
+        return render(request, 'expenses/add_expense.html', context)    
     if request.method == 'POST':
         amount = request.POST['amount']
         if not amount:
             messages.error(request, 'Amount is required')
             return render(request, 'expenses/add_expense.html', context)
-
         description = request.POST['description']
         date = request.POST['expense_date']
         category = request.POST['category']
@@ -57,14 +70,12 @@ def expense_edit(request, id):
         return render(request, 'expenses/edit-expense.html', context)
     if request.method == 'POST':
         amount = request.POST['amount']
-
         if not amount:
             messages.error(request, 'Amount is required')
             return render(request, 'expenses/edit-expense.html', context)
         description = request.POST['description']
         date = request.POST['expense_date']
         category = request.POST['category']
-
         if not description:
             messages.error(request, 'description is required')
             return render(request, 'expenses/edit-expense.html', context)
