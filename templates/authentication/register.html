@@ -32,7 +32,10 @@
           </div>
           <input type="submit" value="Register" class="btn btn-block btn-primary submit-btn" />
         </form>
-
+        <div class="container">
+          <span class="text-lead lead">Have an account?<a href="{% url 'login' %}">Login</a></span><br>
+          <span class="text-lead lead">Forget Password?<a href="{% url 'reset-password' %}">Reset it</a></span>
+        </div>
       </div>
 
       </div>
@@ -44,4 +47,3 @@
 <script src="{% static 'js/register.js' %}"></script>
 
 {% endblock content %}
-
