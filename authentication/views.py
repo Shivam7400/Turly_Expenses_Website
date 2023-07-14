@@ -1,3 +1,5 @@
+from collections.abc import Callable, Iterable, Mapping
+from typing import Any
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.shortcuts import render, redirect
 from django.views import View
@@ -14,6 +16,15 @@ from django.core.mail import send_mail
 from .utils import account_activation_token
 from django.urls import reverse
 from django.contrib import auth
+import threading
+
+class EmailThread(threading.Thread):
+    def __init__(self, email):
+        self.email = email
+        threading.Thread.__init__(self)
+    
+    def run(self):
+        self.email.send(fail_silently=False)
 
 class EmailValidationView(View):
     def post(self, request):
@@ -73,7 +84,7 @@ class RegistrationView(View):
                     'noreply@semycolon.com',
                     [email],
                 )
-                email.send(fail_silently=False)
+                EmailThread(email).start()
                 messages.success(request, 'Account Successfully Created')
                 return render(request, 'authentication/register.html')
         return render(request, 'authentication/register.html')
@@ -163,7 +174,7 @@ class RequestPasswordResetEmail(View):
                 'noreply@semycolon.com',
                 [email],
             )
-        email.send(fail_silently=False)
+            EmailThread(email).start()
         messages.success(request, 'We have sent you on email to reset your password')
         return render(request, 'authentication/reset-password.html', {})
 
